@@ -85,7 +85,7 @@ const Login = () => {
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="password"
-                    type={showPasswor ? "text" : "password"}
+                    type={showPassword ? "text" : "password"}
                     placeholder="Sua senha"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
