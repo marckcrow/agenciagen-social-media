@@ -10,8 +10,12 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Generate from "./pages/Generate";
+import Schedule from "./pages/Schedule";
+import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
+import Admin from "./pages/Admin";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,10 +41,25 @@ const App = () => (
                 <Generate />
               </ProtectedRoute>
             } />
+            <Route path="/schedule" element={
+              <ProtectedRoute>
+                <Schedule />
+              </ProtectedRoute>
+            } />
+            <Route path="/analytics" element={
+              <ProtectedRoute>
+                <Analytics />
+              </ProtectedRoute>
+            } />
             <Route path="/settings" element={
               <ProtectedRoute>
                 <Settings />
               </ProtectedRoute>
+            } />
+            <Route path="/admin" element={
+              <AdminRoute>
+                <Admin />
+              </AdminRoute>
             } />
             <Route path="*" element={<NotFound />} />
           </Routes>
