@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -26,7 +25,7 @@ interface ScheduledPost {
 }
 
 const Schedule = () => {
-  const { user, updateUserUsage } = useAuth();
+  const { user, updateUserUsage, isLoading } = useAuth();
   const { toast } = useToast();
   const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -37,6 +36,33 @@ const Schedule = () => {
     scheduledDate: '',
     scheduledTime: ''
   });
+
+  // Loading state while authentication is being checked
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50">
+        <Navbar />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-600"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Safety check - if user is not available, show loading or redirect
+  if (!user || !user.usage) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50">
+        <Navbar />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold mb-2">Carregando...</h2>
+            <p className="text-gray-600">Verificando informações do usuário</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     // Mock scheduled posts data
@@ -84,7 +110,17 @@ const Schedule = () => {
       return;
     }
 
-    if (user && user.usage.postsScheduled >= user.usage.maxPosts) {
+    // Safety check before accessing user.usage
+    if (!user || !user.usage) {
+      toast({
+        title: "Erro de autenticação",
+        description: "Faça login novamente para continuar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (user.usage.postsScheduled >= user.usage.maxPosts) {
       toast({
         title: "Limite atingido",
         description: "Você atingiu o limite de posts agendados do seu plano.",
@@ -105,9 +141,7 @@ const Schedule = () => {
     };
 
     setScheduledPosts([newScheduledPost, ...scheduledPosts]);
-    if (user) {
-      updateUserUsage({ postsScheduled: user.usage.postsScheduled + 1 });
-    }
+    updateUserUsage({ postsScheduled: user.usage.postsScheduled + 1 });
     
     setNewPost({
       title: '',
@@ -126,7 +160,7 @@ const Schedule = () => {
 
   const handleDeletePost = (id: string) => {
     setScheduledPosts(scheduledPosts.filter(post => post.id !== id));
-    if (user) {
+    if (user && user.usage) {
       updateUserUsage({ postsScheduled: Math.max(0, user.usage.postsScheduled - 1) });
     }
     toast({
@@ -256,26 +290,24 @@ const Schedule = () => {
         </div>
 
         {/* Usage Stats */}
-        {user && (
-          <Card className="mb-8 hover-lift animate-fade-in">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Uso do Plano</h3>
-                  <p className="text-gray-600">
-                    {user.usage.postsScheduled} de {user.usage.maxPosts === Infinity ? '∞' : user.usage.maxPosts} posts agendados
-                  </p>
-                </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-purple-600">
-                    {user.usage.maxPosts === Infinity ? '∞' : user.usage.maxPosts - user.usage.postsScheduled}
-                  </div>
-                  <div className="text-sm text-gray-500">restantes</div>
-                </div>
+        <Card className="mb-8 hover-lift animate-fade-in">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Uso do Plano</h3>
+                <p className="text-gray-600">
+                  {user.usage.postsScheduled} de {user.usage.maxPosts === Infinity ? '∞' : user.usage.maxPosts} posts agendados
+                </p>
               </div>
-            </CardContent>
-          </Card>
-        )}
+              <div className="text-right">
+                <div className="text-2xl font-bold text-purple-600">
+                  {user.usage.maxPosts === Infinity ? '∞' : user.usage.maxPosts - user.usage.postsScheduled}
+                </div>
+                <div className="text-sm text-gray-500">restantes</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Scheduled Posts Table */}
         <Card className="animate-fade-in">
