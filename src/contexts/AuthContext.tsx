@@ -8,6 +8,9 @@ interface User {
   plan: 'free' | 'pro' | 'enterprise';
   role: 'user' | 'admin';
   createdAt: string;
+  phone?: string;
+  instagramLink?: string;
+  businessSegment?: string;
   usage: {
     postsGenerated: number;
     postsScheduled: number;
@@ -18,7 +21,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name: string) => Promise<void>;
+  register: (email: string, password: string, name: string, additionalData?: any) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
   updateUserUsage: (usage: Partial<User['usage']>) => void;
@@ -76,7 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (email: string, password: string, name: string) => {
+  const register = async (email: string, password: string, name: string, additionalData?: any) => {
     setIsLoading(true);
     try {
       const mockUser: User = {
@@ -86,6 +89,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         plan: 'free',
         role: 'user',
         createdAt: new Date().toISOString(),
+        phone: additionalData?.phone,
+        instagramLink: additionalData?.instagramLink,
+        businessSegment: additionalData?.businessSegment,
         usage: {
           postsGenerated: 0,
           postsScheduled: 0,
