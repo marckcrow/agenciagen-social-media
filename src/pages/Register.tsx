@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -264,7 +263,7 @@ const Register = () => {
                 <Checkbox 
                   id="terms" 
                   checked={termsAccepted}
-                  onCheckedChange={setTermsAccepted}
+                  onCheckedChange={(checked) => setTermsAccepted(checked === true)}
                 />
                 <Label htmlFor="terms" className="text-sm">
                   Aceito os{" "}
