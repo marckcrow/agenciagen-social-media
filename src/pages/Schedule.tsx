@@ -29,6 +29,7 @@ const Schedule = () => {
   const { toast } = useToast();
   const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isGenerateDialogOpen, setIsGenerateDialogOpen] = useState(false);
   const [newPost, setNewPost] = useState({
     title: '',
     content: '',
@@ -36,6 +37,9 @@ const Schedule = () => {
     scheduledDate: '',
     scheduledTime: ''
   });
+  const [generatePrompt, setGeneratePrompt] = useState('');
+  const [generatedContent, setGeneratedContent] = useState({ title: '', content: '', imageUrl: '' });
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // Loading state while authentication is being checked
   if (isLoading) {
@@ -99,6 +103,43 @@ const Schedule = () => {
     ];
     setScheduledPosts(mockPosts);
   }, []);
+
+  const handleGenerateContent = async () => {
+    if (!generatePrompt.trim()) {
+      toast({
+        title: "Tema obrigatório",
+        description: "Digite um tema ou objetivo para gerar o conteúdo.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+    
+    // Simular geração de conteúdo com IA
+    setTimeout(() => {
+      const mockContent = {
+        title: `Conteúdo sobre: ${generatePrompt}`,
+        content: `🚀 Descubra como ${generatePrompt} pode transformar seu negócio! \n\n✨ Principais benefícios:\n• Maior engajamento\n• Resultados comprovados\n• Estratégia personalizada\n\n#marketing #digital #ia #conteudo`,
+        imageUrl: 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400'
+      };
+      
+      setGeneratedContent(mockContent);
+      setNewPost({
+        ...newPost,
+        title: mockContent.title,
+        content: mockContent.content
+      });
+      setIsGenerating(false);
+      setIsGenerateDialogOpen(false);
+      setIsCreateDialogOpen(true);
+      
+      toast({
+        title: "Conteúdo gerado!",
+        description: "Seu conteúdo foi criado com IA. Revise e agende a publicação.",
+      });
+    }, 3000);
+  };
 
   const handleCreatePost = () => {
     if (!newPost.title || !newPost.content || !newPost.scheduledDate || !newPost.scheduledTime) {
@@ -191,102 +232,158 @@ const Schedule = () => {
               Agendamentos
             </h1>
             <p className="text-gray-600">
-              Gerencie e agende suas publicações nas redes sociais
+              Gere conteúdo com IA e agende suas publicações nas redes sociais
             </p>
           </div>
           
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-gradient-ai text-white hover:opacity-90 hover-lift animate-fade-in">
-                <Plus className="h-4 w-4 mr-2" />
-                Agendar Post
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-lg animate-scale-in">
-              <DialogHeader>
-                <DialogTitle>Agendar Nova Publicação</DialogTitle>
-                <DialogDescription>
-                  Configure os detalhes da sua publicação agendada
-                </DialogDescription>
-              </DialogHeader>
-              
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="title">Título</Label>
-                  <Input
-                    id="title"
-                    placeholder="Título do post"
-                    value={newPost.title}
-                    onChange={(e) => setNewPost({...newPost, title: e.target.value})}
-                  />
-                </div>
+          <div className="flex space-x-3">
+            <Dialog open={isGenerateDialogOpen} onOpenChange={setIsGenerateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-gradient-ai text-white hover:opacity-90 hover-lift animate-fade-in">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Gerar com IA
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-lg animate-scale-in">
+                <DialogHeader>
+                  <DialogTitle>Gerar Conteúdo com IA</DialogTitle>
+                  <DialogDescription>
+                    Digite o tema ou objetivo do seu post para nossa IA criar conteúdo personalizado
+                  </DialogDescription>
+                </DialogHeader>
                 
-                <div>
-                  <Label htmlFor="content">Conteúdo</Label>
-                  <Textarea
-                    id="content"
-                    placeholder="Escreva o conteúdo do seu post..."
-                    value={newPost.content}
-                    onChange={(e) => setNewPost({...newPost, content: e.target.value})}
-                    className="min-h-[100px]"
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="platform">Plataforma</Label>
-                  <Select value={newPost.platform} onValueChange={(value: 'instagram' | 'youtube') => setNewPost({...newPost, platform: value})}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="instagram">
-                        <div className="flex items-center">
-                          <Instagram className="h-4 w-4 mr-2" />
-                          Instagram
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="youtube">
-                        <div className="flex items-center">
-                          <Youtube className="h-4 w-4 mr-2" />
-                          YouTube
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-4">
                   <div>
-                    <Label htmlFor="date">Data</Label>
-                    <Input
-                      id="date"
-                      type="date"
-                      value={newPost.scheduledDate}
-                      onChange={(e) => setNewPost({...newPost, scheduledDate: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="time">Horário</Label>
-                    <Input
-                      id="time"
-                      type="time"
-                      value={newPost.scheduledTime}
-                      onChange={(e) => setNewPost({...newPost, scheduledTime: e.target.value})}
+                    <Label htmlFor="prompt">Tema ou objetivo do post</Label>
+                    <Textarea
+                      id="prompt"
+                      placeholder="Ex: Dicas de marketing digital para pequenos negócios"
+                      value={generatePrompt}
+                      onChange={(e) => setGeneratePrompt(e.target.value)}
+                      className="min-h-[100px]"
                     />
                   </div>
                 </div>
-              </div>
-              
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                  Cancelar
+                
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsGenerateDialogOpen(false)}>
+                    Cancelar
+                  </Button>
+                  <Button 
+                    onClick={handleGenerateContent} 
+                    className="bg-gradient-ai text-white"
+                    disabled={isGenerating}
+                  >
+                    {isGenerating ? "Gerando..." : "Gerar Conteúdo"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="hover-lift animate-fade-in">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Agendar Manualmente
                 </Button>
-                <Button onClick={handleCreatePost} className="bg-gradient-ai text-white">
-                  Agendar Post
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent className="max-w-lg animate-scale-in">
+                <DialogHeader>
+                  <DialogTitle>Agendar Nova Publicação</DialogTitle>
+                  <DialogDescription>
+                    Configure os detalhes da sua publicação agendada
+                  </DialogDescription>
+                </DialogHeader>
+                
+                <div className="space-y-4">
+                  {generatedContent.imageUrl && (
+                    <div className="text-center">
+                      <img 
+                        src={generatedContent.imageUrl} 
+                        alt="Conteúdo gerado"
+                        className="w-full h-40 object-cover rounded-lg mb-2"
+                      />
+                      <Badge variant="secondary">Imagem gerada por IA</Badge>
+                    </div>
+                  )}
+                  
+                  <div>
+                    <Label htmlFor="title">Título</Label>
+                    <Input
+                      id="title"
+                      placeholder="Título do post"
+                      value={newPost.title}
+                      onChange={(e) => setNewPost({...newPost, title: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="content">Conteúdo</Label>
+                    <Textarea
+                      id="content"
+                      placeholder="Escreva o conteúdo do seu post..."
+                      value={newPost.content}
+                      onChange={(e) => setNewPost({...newPost, content: e.target.value})}
+                      className="min-h-[100px]"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="platform">Plataforma</Label>
+                    <Select value={newPost.platform} onValueChange={(value: 'instagram' | 'youtube') => setNewPost({...newPost, platform: value})}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="instagram">
+                          <div className="flex items-center">
+                            <Instagram className="h-4 w-4 mr-2" />
+                            Instagram
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="youtube">
+                          <div className="flex items-center">
+                            <Youtube className="h-4 w-4 mr-2" />
+                            YouTube
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="date">Data</Label>
+                      <Input
+                        id="date"
+                        type="date"
+                        value={newPost.scheduledDate}
+                        onChange={(e) => setNewPost({...newPost, scheduledDate: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="time">Horário</Label>
+                      <Input
+                        id="time"
+                        type="time"
+                        value={newPost.scheduledTime}
+                        onChange={(e) => setNewPost({...newPost, scheduledTime: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                    Cancelar
+                  </Button>
+                  <Button onClick={handleCreatePost} className="bg-gradient-ai text-white">
+                    Agendar Post
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         {/* Usage Stats */}

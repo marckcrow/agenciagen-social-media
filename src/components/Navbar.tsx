@@ -2,7 +2,8 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
-import { Sparkles, User, LogOut, Settings, Calendar, BarChart3, Shield } from "lucide-react";
+import { User, LogOut, Settings, Calendar, BarChart3, Shield } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,14 +19,20 @@ const Navbar = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+
   return (
     <nav className="bg-white/95 backdrop-blur-sm border-b border-gray-200/50 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center space-x-2 group">
-            <div className="bg-gradient-ai p-2 rounded-xl group-hover:scale-110 transition-transform duration-200">
-              <Sparkles className="h-6 w-6 text-white" />
-            </div>
+            <img 
+              src="https://agenciagenerativa.com.br/wp-content/uploads/elementor/thumbs/cropped-Screenshot_2-r63103j2lkhbyfz01ttdltnps9yydj60pb3eq4bitc.png"
+              alt="Agência Generativa"
+              className="h-10 w-auto group-hover:scale-110 transition-transform duration-200"
+            />
             <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
               Agência Generativa
             </span>
@@ -42,15 +49,6 @@ const Navbar = () => {
                       className="hover-lift"
                     >
                       Dashboard
-                    </Button>
-                  </Link>
-                  <Link to="/generate">
-                    <Button 
-                      variant={isActive('/generate') ? 'default' : 'ghost'} 
-                      size="sm"
-                      className="hover-lift"
-                    >
-                      Gerar Conteúdo
                     </Button>
                   </Link>
                   <Link to="/schedule">
@@ -73,6 +71,15 @@ const Navbar = () => {
                       Analytics
                     </Button>
                   </Link>
+                  <Link to="/social-connections">
+                    <Button 
+                      variant={isActive('/social-connections') ? 'default' : 'ghost'} 
+                      size="sm"
+                      className="hover-lift"
+                    >
+                      Redes Sociais
+                    </Button>
+                  </Link>
                   {user.role === 'admin' && (
                     <Link to="/admin">
                       <Button 
@@ -88,16 +95,19 @@ const Navbar = () => {
                 </div>
                 
                 <div className="flex items-center space-x-3">
-                  <Badge variant={user.plan === 'free' ? 'secondary' : 'default'} className="animate-fade-in">
+                  <Badge variant={user.plan === 'free' ? 'secondary' : user.plan === 'pro' ? 'default' : 'outline'} className="animate-fade-in">
                     {user.plan === 'free' ? 'Gratuito' : user.plan === 'pro' ? 'Pro' : 'Enterprise'}
                   </Badge>
                   
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="sm" className="flex items-center space-x-2 hover-lift">
-                        <div className="w-8 h-8 bg-gradient-ai rounded-full flex items-center justify-center">
-                          <User className="h-4 w-4 text-white" />
-                        </div>
+                        <Avatar className="w-8 h-8">
+                          <AvatarImage src={user.profileImage} alt={user.name} />
+                          <AvatarFallback className="bg-gradient-ai text-white text-sm">
+                            {getInitials(user.name)}
+                          </AvatarFallback>
+                        </Avatar>
                         <span className="hidden md:block">{user.name}</span>
                       </Button>
                     </DropdownMenuTrigger>
