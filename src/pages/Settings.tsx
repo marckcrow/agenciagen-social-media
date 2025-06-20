@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Settings as SettingsIcon, User, CreditCard, Bell, Shield, Link2, Crown, Zap } from "lucide-react";
+import { User, CreditCard, Shield, Link2, Crown, Zap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import ProfileImageUpload from "@/components/ProfileImageUpload";
@@ -273,7 +273,7 @@ const Settings = () => {
                       </ul>
                       <Button 
                         className="w-full mt-4 bg-gradient-ai text-white"
-                        onClick={() => handleUpgradeP lan('enterprise')}
+                        onClick={() => handleUpgradePlan('enterprise')}
                         disabled={user?.plan === 'enterprise'}
                       >
                         {user?.plan === 'enterprise' ? 'Plano Atual' : 'Fazer Upgrade'}
