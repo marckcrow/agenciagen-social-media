@@ -14,7 +14,171 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      admin_metrics: {
+        Row: {
+          churn_rate: number | null
+          content_generated: number | null
+          created_at: string
+          date: string
+          enterprise_users: number | null
+          free_users: number | null
+          id: string
+          mrr: number | null
+          pro_users: number | null
+          total_users: number | null
+          trial_conversions: number | null
+          updated_at: string
+        }
+        Insert: {
+          churn_rate?: number | null
+          content_generated?: number | null
+          created_at?: string
+          date: string
+          enterprise_users?: number | null
+          free_users?: number | null
+          id?: string
+          mrr?: number | null
+          pro_users?: number | null
+          total_users?: number | null
+          trial_conversions?: number | null
+          updated_at?: string
+        }
+        Update: {
+          churn_rate?: number | null
+          content_generated?: number | null
+          created_at?: string
+          date?: string
+          enterprise_users?: number | null
+          free_users?: number | null
+          id?: string
+          mrr?: number | null
+          pro_users?: number | null
+          total_users?: number | null
+          trial_conversions?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          data: Json | null
+          id: string
+          message: string
+          read: boolean | null
+          title: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          message: string
+          read?: boolean | null
+          title: string
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          message?: string
+          read?: boolean | null
+          title?: string
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      usage_stats: {
+        Row: {
+          ai_requests: number | null
+          created_at: string
+          date: string
+          id: string
+          posts_generated: number | null
+          posts_scheduled: number | null
+          social_accounts_connected: number | null
+          user_id: string
+        }
+        Insert: {
+          ai_requests?: number | null
+          created_at?: string
+          date: string
+          id?: string
+          posts_generated?: number | null
+          posts_scheduled?: number | null
+          social_accounts_connected?: number | null
+          user_id: string
+        }
+        Update: {
+          ai_requests?: number | null
+          created_at?: string
+          date?: string
+          id?: string
+          posts_generated?: number | null
+          posts_scheduled?: number | null
+          social_accounts_connected?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      webhook_events: {
+        Row: {
+          created_at: string
+          data: Json
+          error_message: string | null
+          event_type: string
+          id: string
+          processed_at: string | null
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          error_message?: string | null
+          event_type: string
+          id?: string
+          processed_at?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          processed_at?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
