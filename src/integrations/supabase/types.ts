@@ -92,6 +92,143 @@ export type Database = {
         }
         Relationships: []
       }
+      posts: {
+        Row: {
+          content: string
+          created_at: string
+          description: string
+          id: string
+          image_url: string | null
+          platform: string
+          published_at: string | null
+          scheduled_at: string | null
+          status: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          description: string
+          id?: string
+          image_url?: string | null
+          platform: string
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          platform?: string
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      social_accounts: {
+        Row: {
+          access_token: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          platform: string
+          platform_user_id: string
+          refresh_token: string | null
+          updated_at: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          platform: string
+          platform_user_id: string
+          refresh_token?: string | null
+          updated_at?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          platform?: string
+          platform_user_id?: string
+          refresh_token?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      social_metrics: {
+        Row: {
+          clicks: number | null
+          collected_at: string
+          comments: number | null
+          created_at: string
+          id: string
+          impressions: number | null
+          likes: number | null
+          platform: string
+          platform_post_id: string | null
+          post_id: string
+          shares: number | null
+        }
+        Insert: {
+          clicks?: number | null
+          collected_at?: string
+          comments?: number | null
+          created_at?: string
+          id?: string
+          impressions?: number | null
+          likes?: number | null
+          platform: string
+          platform_post_id?: string | null
+          post_id: string
+          shares?: number | null
+        }
+        Update: {
+          clicks?: number | null
+          collected_at?: string
+          comments?: number | null
+          created_at?: string
+          id?: string
+          impressions?: number | null
+          likes?: number | null
+          platform?: string
+          platform_post_id?: string | null
+          post_id?: string
+          shares?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_metrics_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       usage_stats: {
         Row: {
           ai_requests: number | null
@@ -121,6 +258,48 @@ export type Database = {
           posts_generated?: number | null
           posts_scheduled?: number | null
           social_accounts_connected?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_plans: {
+        Row: {
+          ai_requests_limit: number
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          plan_type: string
+          posts_limit: number
+          social_accounts_limit: number
+          started_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_requests_limit?: number
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          plan_type?: string
+          posts_limit?: number
+          social_accounts_limit?: number
+          started_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_requests_limit?: number
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          plan_type?: string
+          posts_limit?: number
+          social_accounts_limit?: number
+          started_at?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

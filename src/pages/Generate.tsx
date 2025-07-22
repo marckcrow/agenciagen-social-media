@@ -11,7 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 
 const Generate = () => {
-  const [topic, setTopic] = useState("");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [platform, setPlatform] = useState("instagram");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedContent, setGeneratedContent] = useState("");
@@ -19,10 +20,10 @@ const Generate = () => {
   const { toast } = useToast();
 
   const handleGenerate = async () => {
-    if (!topic.trim()) {
+    if (!title.trim() || !description.trim()) {
       toast({
         title: "Erro",
-        description: "Por favor, digite um tópico para gerar conteúdo.",
+        description: "Por favor, preencha o título e a descrição.",
         variant: "destructive",
       });
       return;
@@ -31,21 +32,29 @@ const Generate = () => {
     setIsGenerating(true);
     
     try {
-      // Mock content generation - replace with actual OpenAI API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Call the real OpenAI API through Supabase edge function
+      const { supabase } = await import("@/integrations/supabase/client");
       
-      const mockContent = platform === "instagram" 
-        ? `🌟 ${topic} - Descubra o que você precisa saber!\n\n✨ Transforme sua vida com essas dicas incríveis sobre ${topic}.\n\n💡 Salve este post e compartilhe com quem precisa ver!\n\n#${topic.replace(/\s+/g, '')} #dicasincriveis #transformacao`
-        : `Como ${topic} pode mudar sua vida - Tutorial Completo\n\nNeste vídeo você vai aprender:\n- Os fundamentos de ${topic}\n- Estratégias práticas\n- Casos de sucesso reais\n- Dicas exclusivas\n\n👍 Se gostou, deixe seu like!\n🔔 Ative o sininho para mais conteúdo!\n💬 Comenta aí sua opinião!`;
-      
-      setGeneratedContent(mockContent);
-      setGeneratedImage("https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=500&h=500&fit=crop");
+      const { data, error } = await supabase.functions.invoke('generate-content', {
+        body: {
+          title,
+          description,
+          platform,
+          userId: (await supabase.auth.getUser()).data.user?.id
+        }
+      });
+
+      if (error) throw error;
+
+      setGeneratedContent(data.content);
+      setGeneratedImage(data.image);
       
       toast({
         title: "Conteúdo gerado com sucesso!",
         description: "Seu conteúdo está pronto para usar.",
       });
     } catch (error) {
+      console.error('Error generating content:', error);
       toast({
         title: "Erro ao gerar conteúdo",
         description: "Tente novamente em alguns momentos.",
@@ -91,12 +100,23 @@ const Generate = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="topic">Tópico ou Palavra-chave</Label>
+                <Label htmlFor="title">Título do Conteúdo</Label>
                 <Input
-                  id="topic"
-                  placeholder="Ex: Marketing Digital, Receitas Saudáveis..."
-                  value={topic}
-                  onChange={(e) => setTopic(e.target.value)}
+                  id="title"
+                  placeholder="Ex: Dicas de Marketing Digital para 2024"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Descrição</Label>
+                <Textarea
+                  id="description"
+                  placeholder="Descreva brevemente sobre o que você quer falar..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="min-h-[80px]"
                 />
               </div>
 

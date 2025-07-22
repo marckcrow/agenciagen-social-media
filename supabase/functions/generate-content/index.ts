@@ -21,11 +21,13 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     )
 
-    const { prompt, platform, userId } = await req.json();
+    const { title, description, platform, userId } = await req.json();
     
-    if (!prompt || !platform) {
-      throw new Error('Prompt e plataforma são obrigatórios');
+    if (!title || !description || !platform) {
+      throw new Error('Título, descrição e plataforma são obrigatórios');
     }
+
+    console.log('Gerando conteúdo:', { title, description, platform, userId });
 
     // Create platform-specific system prompts
     const systemPrompts = {
@@ -52,16 +54,15 @@ serve(async (req) => {
       Foque em valor para carreira e negócios do público brasileiro.`
     };
 
-    console.log('Gerando conteúdo para:', platform, 'com prompt:', prompt);
-
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Generate content with GPT
+    const contentResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4.1-2025-04-14',
         messages: [
           { 
             role: 'system', 
@@ -69,50 +70,99 @@ serve(async (req) => {
           },
           { 
             role: 'user', 
-            content: `Crie conteúdo sobre: ${prompt}. 
+            content: `Crie um post sobre "${title}". 
+            
+            Contexto: ${description}
             
             Retorne APENAS um JSON válido no formato:
             {
-              "title": "título impactante",
-              "content": "conteúdo completo do post",
-              "hashtags": ["#tag1", "#tag2", "#tag3"],
-              "callToAction": "call to action específico"
+              "content": "conteúdo completo do post com emojis e formatação",
+              "hashtags": ["#tag1", "#tag2", "#tag3"]
             }`
           }
         ],
         temperature: 0.8,
-        max_tokens: 1000,
+        max_tokens: 800,
       }),
     });
 
-    if (!response.ok) {
-      const error = await response.json();
-      console.error('Erro na API OpenAI:', error);
-      throw new Error(`Erro na API OpenAI: ${error.error?.message || 'Erro desconhecido'}`);
+    if (!contentResponse.ok) {
+      const error = await contentResponse.json();
+      console.error('Erro na API OpenAI (conteúdo):', error);
+      throw new Error(`Erro ao gerar conteúdo: ${error.error?.message || 'Erro desconhecido'}`);
     }
 
-    const data = await response.json();
-    const generatedText = data.choices[0].message.content;
-    
-    console.log('Conteúdo gerado:', generatedText);
-
-    // Try to parse as JSON, fallback to simple format
+    const contentData = await contentResponse.json();
     let parsedContent;
+    
     try {
-      parsedContent = JSON.parse(generatedText);
+      parsedContent = JSON.parse(contentData.choices[0].message.content);
     } catch (e) {
       // Fallback if AI doesn't return valid JSON
       parsedContent = {
-        title: `Conteúdo sobre: ${prompt}`,
-        content: generatedText,
-        hashtags: [`#${prompt.replace(/\s+/g, '').toLowerCase()}`, '#marketing', '#digital'],
-        callToAction: platform === 'youtube' ? 'Se inscreva no canal!' : 'Comenta aí sua opinião!'
+        content: contentData.choices[0].message.content,
+        hashtags: [`#${title.replace(/\s+/g, '').toLowerCase()}`, '#marketing', '#digital']
       };
     }
 
-    // Update user usage stats if userId provided
+    // Generate image with DALL-E
+    console.log('Gerando imagem com DALL-E...');
+    const imageResponse = await fetch('https://api.openai.com/v1/images/generations', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openAIApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-image-1',
+        prompt: `Create a professional, eye-catching image for social media about "${title}". ${description}. Modern, colorful, engaging style suitable for ${platform}.`,
+        n: 1,
+        size: '1024x1024',
+        quality: 'high',
+        output_format: 'png'
+      }),
+    });
+
+    let imageUrl = 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=800&h=800&fit=crop&q=80';
+    
+    if (imageResponse.ok) {
+      const imageData = await imageResponse.json();
+      if (imageData.data && imageData.data[0]) {
+        // For gpt-image-1, the response comes as base64
+        const base64Image = imageData.data[0].b64_json;
+        if (base64Image) {
+          imageUrl = `data:image/png;base64,${base64Image}`;
+        }
+      }
+      console.log('Imagem gerada com sucesso');
+    } else {
+      console.error('Erro ao gerar imagem, usando fallback');
+    }
+
+    // Save to posts table
     if (userId) {
       try {
+        const { data: postData, error: postError } = await supabaseClient
+          .from('posts')
+          .insert({
+            user_id: userId,
+            title,
+            description,
+            content: parsedContent.content,
+            image_url: imageUrl,
+            platform,
+            status: 'draft'
+          })
+          .select()
+          .single();
+
+        if (postError) {
+          console.error('Erro ao salvar post:', postError);
+        } else {
+          console.log('Post salvo com sucesso:', postData.id);
+        }
+
+        // Update usage stats
         const today = new Date().toISOString().split('T')[0];
         await supabaseClient.rpc('increment_usage_stat', {
           p_user_id: userId,
@@ -120,24 +170,30 @@ serve(async (req) => {
           p_stat: 'ai_requests',
           p_increment: 1
         });
-        console.log('Estatísticas de uso atualizadas para o usuário:', userId);
+        
+        await supabaseClient.rpc('increment_usage_stat', {
+          p_user_id: userId,
+          p_date: today,
+          p_stat: 'posts_generated',
+          p_increment: 1
+        });
+
+        console.log('Estatísticas atualizadas para usuário:', userId);
       } catch (error) {
-        console.error('Erro ao atualizar estatísticas:', error);
-        // Don't fail the main request if stats update fails
+        console.error('Erro ao salvar dados:', error);
+        // Don't fail the main request
       }
     }
 
-    // Generate image suggestion URL (using Unsplash for now)
-    const imageKeywords = prompt.split(' ').slice(0, 3).join(',');
-    const imageUrl = `https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=800&h=800&fit=crop&q=80`;
-
     return new Response(JSON.stringify({
-      ...parsedContent,
-      imageUrl,
+      content: parsedContent.content,
+      image: imageUrl,
+      hashtags: parsedContent.hashtags,
       metadata: {
         platform,
-        createdAt: new Date().toISOString(),
-        tokensUsed: data.usage?.total_tokens || 0
+        title,
+        description,
+        createdAt: new Date().toISOString()
       }
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

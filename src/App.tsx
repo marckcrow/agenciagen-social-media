@@ -15,6 +15,7 @@ import Thanks from "./pages/Thanks";
 import SocialConnections from "./pages/SocialConnections";
 import Dashboard from "./pages/Dashboard";
 import Generate from "./pages/Generate";
+import Posts from "./pages/Posts";
 import Schedule from "./pages/Schedule";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
@@ -62,6 +63,11 @@ const App = () => (
             <Route path="/generate" element={
               <ProtectedRoute>
                 <Generate />
+              </ProtectedRoute>
+            } />
+            <Route path="/posts" element={
+              <ProtectedRoute>
+                <Posts />
               </ProtectedRoute>
             } />
             <Route path="/schedule" element={
