@@ -1,73 +1,188 @@
-# Welcome to your Lovable project
+# 🚀 Agência Generativa
 
-## Project info
+Uma plataforma completa de geração e gerenciamento de conteúdo digital com IA, desenvolvida para agências e profissionais de marketing digital.
 
-**URL**: https://lovable.dev/projects/faa9bcfe-118c-4ad7-a610-d57b8c6fbbb4
+## 📋 Sobre o Projeto
 
-## How can I edit this code?
+A Agência Generativa é uma aplicação web moderna que combina inteligência artificial com ferramentas de gestão para automatizar e otimizar a criação de conteúdo digital. A plataforma oferece desde geração automática de posts até análises detalhadas de performance.
 
-There are several ways of editing your application.
+### ✨ Principais Funcionalidades
 
-**Use Lovable**
+- **🤖 Geração de Conteúdo com IA**: Criação automática de posts, legendas e conteúdo visual
+- **📅 Agendamento Inteligente**: Sistema completo de agendamento de posts para múltiplas redes sociais
+- **🔗 Conexões Sociais**: Integração com principais plataformas de mídia social
+- **📊 Analytics Avançado**: Métricas detalhadas de performance e engajamento
+- **👥 Gestão de Usuários**: Sistema completo de usuários com diferentes níveis de acesso
+- **⚡ Webhook System**: Sistema robusto de webhooks para integrações
+- **🛡️ Sistema de Roles**: Controle granular de permissões (Admin, Moderador, Usuário)
+- **📈 Dashboard Administrativo**: Painel completo para administradores
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/faa9bcfe-118c-4ad7-a610-d57b8c6fbbb4) and start prompting.
+## 🛠️ Tecnologias Utilizadas
 
-Changes made via Lovable will be committed automatically to this repo.
+### Frontend
+- **React 18** - Biblioteca principal para interface
+- **TypeScript** - Tipagem estática
+- **Vite** - Build tool e dev server
+- **Tailwind CSS** - Framework CSS utilitário
+- **shadcn/ui** - Componentes de interface
+- **React Router** - Roteamento
+- **React Query** - Gerenciamento de estado servidor
+- **React Hook Form** - Gerenciamento de formulários
 
-**Use your preferred IDE**
+### Backend & Database
+- **Supabase** - Backend as a Service
+  - PostgreSQL Database
+  - Row Level Security (RLS)
+  - Edge Functions
+  - Real-time subscriptions
+  - Authentication
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Funcionalidades de Backend
+- **Edge Functions**: Processamento de webhooks e métricas
+- **Cron Jobs**: Agregação automática de métricas diárias
+- **Sistema de Notificações**: Notificações em tempo real
+- **Upload de Arquivos**: Gerenciamento de imagens de perfil
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🏗️ Arquitetura do Projeto
 
-Follow these steps:
+```
+src/
+├── components/           # Componentes React reutilizáveis
+│   ├── admin/           # Componentes administrativos
+│   ├── register/        # Componentes de registro
+│   └── ui/              # Componentes base (shadcn/ui)
+├── contexts/            # Contextos React
+├── hooks/               # Custom hooks
+├── integrations/        # Integrações externas
+│   └── supabase/        # Cliente e tipos Supabase
+├── lib/                 # Utilitários e helpers
+└── pages/               # Páginas da aplicação
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+supabase/
+├── functions/           # Edge Functions
+├── migrations/          # Migrações do banco de dados
+└── config.toml          # Configuração do Supabase
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## 🗄️ Estrutura do Banco de Dados
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Tabelas Principais
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+- **`user_roles`** - Gerenciamento de roles dos usuários
+- **`admin_metrics`** - Métricas administrativas agregadas
+- **`usage_stats`** - Estatísticas de uso por usuário
+- **`notifications`** - Sistema de notificações
+- **`webhook_events`** - Log de eventos de webhook
+
+### Segurança
+- **Row Level Security (RLS)** ativado em todas as tabelas
+- **Políticas granulares** baseadas em roles de usuário
+- **Função `has_role()`** para verificação de permissões
+
+## 🚀 Como Executar o Projeto
+
+### Pré-requisitos
+- Node.js (versão 18 ou superior)
+- npm ou yarn
+- Conta no Supabase
+
+### Configuração
+
+1. **Clone o repositório**
+```bash
+git clone [URL_DO_SEU_REPOSITORIO]
+cd agencia-generativa
+```
+
+2. **Instale as dependências**
+```bash
+npm install
+```
+
+3. **Configure o Supabase**
+   - Crie um projeto no [Supabase](https://supabase.com)
+   - Execute as migrações do banco de dados
+   - Configure as variáveis de ambiente no `src/integrations/supabase/client.ts`
+
+4. **Execute o projeto**
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## 🔐 Sistema de Autenticação e Permissões
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Roles Disponíveis
+- **Admin**: Acesso completo ao sistema
+- **Moderador**: Acesso limitado às funcionalidades de moderação
+- **Usuário**: Acesso às funcionalidades básicas
 
-**Use GitHub Codespaces**
+### Funcionalidades por Role
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+| Funcionalidade | Admin | Moderador | Usuário |
+|---------------|-------|-----------|---------|
+| Dashboard Administrativo | ✅ | ❌ | ❌ |
+| Gerenciamento de Usuários | ✅ | ✅ | ❌ |
+| Visualizar Webhooks | ✅ | ❌ | ❌ |
+| Geração de Conteúdo | ✅ | ✅ | ✅ |
+| Analytics Próprio | ✅ | ✅ | ✅ |
 
-## What technologies are used for this project?
+## 📊 Edge Functions
 
-This project is built with:
+### Webhooks (`webhook-event`)
+Processa eventos externos e atualiza métricas:
+- Signup de usuários
+- Upgrades de plano
+- Geração de conteúdo
+- Expiração de trial
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Agregador de Métricas (`daily-metrics-aggregator`)
+Execução diária para agregação de:
+- Contagem de usuários por plano
+- Cálculo de MRR (Monthly Recurring Revenue)
+- Métricas de conteúdo gerado
+- Taxa de conversão e churn
 
-## How can I deploy this project?
+## 🔧 Configurações e Customização
 
-Simply open [Lovable](https://lovable.dev/projects/faa9bcfe-118c-4ad7-a610-d57b8c6fbbb4) and click on Share -> Publish.
+### Design System
+- Todos os estilos seguem um design system centralizado
+- Tokens semânticos definidos em `index.css`
+- Componentes customizáveis via `tailwind.config.ts`
 
-## Can I connect a custom domain to my Lovable project?
+### Webhooks
+Configure webhooks externos para integração com:
+- Sistemas de pagamento
+- Plataformas de IA
+- Redes sociais
+- Analytics externos
 
-Yes, you can!
+## 📱 Funcionalidades Futuras
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+- [ ] Integração com ChatGPT/Claude para geração de conteúdo
+- [ ] Agendamento automático baseado em IA
+- [ ] Analytics preditivo
+- [ ] App móvel React Native
+- [ ] Integração com mais redes sociais
+- [ ] Sistema de templates personalizáveis
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 🤝 Contribuição
+
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/MinhaFeature`)
+3. Commit suas mudanças (`git commit -m 'Adiciona MinhaFeature'`)
+4. Push para a branch (`git push origin feature/MinhaFeature`)
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+
+## 🆘 Suporte
+
+Para suporte ou dúvidas sobre o projeto:
+- Abra uma issue no GitHub
+- Entre em contato através do e-mail: [seu-email@exemplo.com]
+
+---
+
+**Desenvolvido com ❤️ para revolucionar a gestão de conteúdo digital**
