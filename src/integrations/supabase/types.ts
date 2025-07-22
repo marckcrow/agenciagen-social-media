@@ -191,6 +191,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_usage_stat: {
+        Args: {
+          p_user_id: string
+          p_date: string
+          p_stat: string
+          p_increment?: number
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "user" | "admin" | "service"
