@@ -188,57 +188,41 @@ serve(async (req) => {
       }
     }
 
-    // Send webhook to n8n for automatic publishing
+    // Send webhook to Railway for automatic publishing
     try {
-      // Get webhook URL from admin settings
-      const { data: webhookSetting, error: webhookError } = await supabaseClient
-        .from('admin_settings')
-        .select('value')
-        .eq('key', 'n8n_webhook_url')
-        .single();
+      const webhookUrl = 'https://primary-production-14e6.up.railway.app/webhook/lovable-instagram';
+      console.log('Disparando webhook para:', webhookUrl);
 
-      if (!webhookError && webhookSetting?.value) {
-        const webhookUrl = webhookSetting.value;
-        console.log('Disparando webhook para:', webhookUrl);
+      const webhookPayload = {
+        title,
+        caption: parsedContent.content,
+        image_url: imageUrl
+      };
 
-        const webhookPayload = {
-          title,
-          caption: parsedContent.content,
-          image_url: imageUrl,
-          platform,
-          post_id: postId,
-          user_id: userId,
-          hashtags: parsedContent.hashtags,
-          created_at: new Date().toISOString()
-        };
+      const webhookResponse = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(webhookPayload),
+      });
 
-        const webhookResponse = await fetch(webhookUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(webhookPayload),
-        });
-
-        if (webhookResponse.ok) {
-          console.log('Webhook enviado com sucesso');
-          
-          // Update post to mark webhook as sent
-          if (postId) {
-            await supabaseClient
-              .from('posts')
-              .update({ 
-                webhook_sent: true, 
-                webhook_sent_at: new Date().toISOString(),
-                status: 'processing'
-              })
-              .eq('id', postId);
-          }
-        } else {
-          console.error('Erro ao enviar webhook:', webhookResponse.status);
+      if (webhookResponse.ok) {
+        console.log('Webhook enviado com sucesso');
+        
+        // Update post to mark webhook as sent
+        if (postId) {
+          await supabaseClient
+            .from('posts')
+            .update({ 
+              webhook_sent: true, 
+              webhook_sent_at: new Date().toISOString(),
+              status: 'processing'
+            })
+            .eq('id', postId);
         }
       } else {
-        console.log('Webhook URL não configurada - pulando envio automático');
+        console.error('Erro ao enviar webhook:', webhookResponse.status);
       }
     } catch (error) {
       console.error('Erro ao processar webhook:', error);
