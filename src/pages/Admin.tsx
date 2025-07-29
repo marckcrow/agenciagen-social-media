@@ -18,6 +18,7 @@ import Navbar from '@/components/Navbar';
 import AdminDashboard from '@/components/admin/AdminDashboard';
 import UserManagement from '@/components/admin/UserManagement';
 import WebhookLogs from '@/components/admin/WebhookLogs';
+import WebhookSettings from '@/components/admin/WebhookSettings';
 
 const Admin = () => {
   const { user } = useAuth();
@@ -42,7 +43,7 @@ const Admin = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="dashboard" className="flex items-center space-x-2">
               <LayoutDashboard className="h-4 w-4" />
               <span className="hidden sm:inline">Dashboard</span>
@@ -53,7 +54,11 @@ const Admin = () => {
             </TabsTrigger>
             <TabsTrigger value="webhooks" className="flex items-center space-x-2">
               <Webhook className="h-4 w-4" />
-              <span className="hidden sm:inline">Webhooks</span>
+              <span className="hidden sm:inline">Logs</span>
+            </TabsTrigger>
+            <TabsTrigger value="webhook-config" className="flex items-center space-x-2">
+              <Settings className="h-4 w-4" />
+              <span className="hidden sm:inline">Webhook</span>
             </TabsTrigger>
             <TabsTrigger value="analytics" className="flex items-center space-x-2">
               <BarChart3 className="h-4 w-4" />
@@ -77,9 +82,13 @@ const Admin = () => {
             <UserManagement />
           </TabsContent>
 
-          <TabsContent value="webhooks">
-            <WebhookLogs />
-          </TabsContent>
+        <TabsContent value="webhooks">
+          <WebhookLogs />
+        </TabsContent>
+
+        <TabsContent value="webhook-config">
+          <WebhookSettings />
+        </TabsContent>
 
           <TabsContent value="analytics">
             <Card>

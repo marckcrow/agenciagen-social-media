@@ -140,6 +140,7 @@ serve(async (req) => {
     }
 
     // Save to posts table
+    let postId = null;
     if (userId) {
       try {
         const { data: postData, error: postError } = await supabaseClient
@@ -151,7 +152,8 @@ serve(async (req) => {
             content: parsedContent.content,
             image_url: imageUrl,
             platform,
-            status: 'draft'
+            status: 'ready',
+            webhook_sent: false
           })
           .select()
           .single();
@@ -160,6 +162,7 @@ serve(async (req) => {
           console.error('Erro ao salvar post:', postError);
         } else {
           console.log('Post salvo com sucesso:', postData.id);
+          postId = postData.id;
         }
 
         // Update usage stats
@@ -183,6 +186,63 @@ serve(async (req) => {
         console.error('Erro ao salvar dados:', error);
         // Don't fail the main request
       }
+    }
+
+    // Send webhook to n8n for automatic publishing
+    try {
+      // Get webhook URL from admin settings
+      const { data: webhookSetting, error: webhookError } = await supabaseClient
+        .from('admin_settings')
+        .select('value')
+        .eq('key', 'n8n_webhook_url')
+        .single();
+
+      if (!webhookError && webhookSetting?.value) {
+        const webhookUrl = webhookSetting.value;
+        console.log('Disparando webhook para:', webhookUrl);
+
+        const webhookPayload = {
+          title,
+          caption: parsedContent.content,
+          image_url: imageUrl,
+          platform,
+          post_id: postId,
+          user_id: userId,
+          hashtags: parsedContent.hashtags,
+          created_at: new Date().toISOString()
+        };
+
+        const webhookResponse = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(webhookPayload),
+        });
+
+        if (webhookResponse.ok) {
+          console.log('Webhook enviado com sucesso');
+          
+          // Update post to mark webhook as sent
+          if (postId) {
+            await supabaseClient
+              .from('posts')
+              .update({ 
+                webhook_sent: true, 
+                webhook_sent_at: new Date().toISOString(),
+                status: 'processing'
+              })
+              .eq('id', postId);
+          }
+        } else {
+          console.error('Erro ao enviar webhook:', webhookResponse.status);
+        }
+      } else {
+        console.log('Webhook URL não configurada - pulando envio automático');
+      }
+    } catch (error) {
+      console.error('Erro ao processar webhook:', error);
+      // Don't fail the main request
     }
 
     return new Response(JSON.stringify({
