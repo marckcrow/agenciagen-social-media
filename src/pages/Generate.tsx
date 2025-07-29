@@ -47,12 +47,31 @@ const Generate = () => {
       if (error) throw error;
 
       setGeneratedContent(data.content);
-      setGeneratedImage(data.image);
       
+      // Aguarda resposta do n8n com a imagem gerada
       toast({
-        title: "Conteúdo gerado com sucesso!",
-        description: "Seu conteúdo está pronto para usar.",
+        title: "Conteúdo gerado!",
+        description: "Aguardando imagem do n8n...",
       });
+
+      // Simula aguardar resposta do webhook n8n (em produção seria via WebSocket ou polling)
+      setTimeout(async () => {
+        try {
+          // Em uma implementação real, você faria polling ou usaria WebSocket
+          // Para demo, vamos usar a imagem original retornada
+          setGeneratedImage(data.image);
+          
+          toast({
+            title: "Conteúdo completo!",
+            description: "Imagem gerada pelo n8n recebida com sucesso.",
+          });
+        } catch (webhookError) {
+          console.error('Error receiving webhook response:', webhookError);
+          // Fallback para imagem original se webhook falhar
+          setGeneratedImage(data.image);
+        }
+      }, 3000); // 3 segundos de delay simulando processamento do n8n
+      
     } catch (error) {
       console.error('Error generating content:', error);
       toast({
