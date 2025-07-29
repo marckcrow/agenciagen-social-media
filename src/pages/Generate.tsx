@@ -92,6 +92,42 @@ const Generate = () => {
     });
   };
 
+  const downloadImage = async () => {
+    if (!generatedImage) {
+      toast({
+        title: "Erro",
+        description: "Nenhuma imagem disponível para download.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(generatedImage);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `post-imagem-${Date.now()}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Download concluído!",
+        description: "Imagem baixada com sucesso.",
+      });
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      toast({
+        title: "Erro no download",
+        description: "Não foi possível baixar a imagem.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -209,7 +245,7 @@ const Generate = () => {
                         <Copy className="mr-2 h-4 w-4" />
                         Copiar Texto
                       </Button>
-                      <Button variant="outline" className="flex-1">
+                      <Button onClick={downloadImage} variant="outline" className="flex-1">
                         <Download className="mr-2 h-4 w-4" />
                         Baixar Imagem
                       </Button>
