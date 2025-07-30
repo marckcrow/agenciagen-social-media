@@ -1,26 +1,11 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/Navbar";
 import { Link } from "react-router-dom";
-import { 
-  Sparkles, 
-  Instagram, 
-  Youtube, 
-  Zap, 
-  Clock, 
-  TrendingUp, 
-  CheckCircle, 
-  ArrowRight,
-  Wand2,
-  Image,
-  FileText
-} from "lucide-react";
-
+import { Sparkles, Instagram, Youtube, Zap, Clock, TrendingUp, CheckCircle, ArrowRight, Wand2, Image, FileText } from "lucide-react";
 const Landing = () => {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50">
+  return <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50">
       <Navbar />
 
       {/* Hero Section */}
@@ -119,18 +104,21 @@ const Landing = () => {
               </p>
               
               <div className="space-y-4">
-                {[
-                  { icon: Clock, text: "90% menos tempo criando conteúdo" },
-                  { icon: TrendingUp, text: "3x mais engajamento médio" },
-                  { icon: CheckCircle, text: "Conteúdo consistente todos os dias" }
-                ].map((item, index) => (
-                  <div key={index} className="flex items-center space-x-3">
+                {[{
+                icon: Clock,
+                text: "90% menos tempo criando conteúdo"
+              }, {
+                icon: TrendingUp,
+                text: "3x mais engajamento médio"
+              }, {
+                icon: CheckCircle,
+                text: "Conteúdo consistente todos os dias"
+              }].map((item, index) => <div key={index} className="flex items-center space-x-3">
                     <div className="bg-green-100 p-2 rounded-full">
                       <item.icon className="h-5 w-5 text-green-600" />
                     </div>
                     <span className="text-lg">{item.text}</span>
-                  </div>
-                ))}
+                  </div>)}
               </div>
             </div>
 
@@ -190,13 +178,9 @@ const Landing = () => {
             </div>
             <span className="text-xl font-bold">Agencia Generativa</span>
           </div>
-          <p className="text-center text-gray-400">
-            © 2024 Agencia Generativa. Todos os direitos reservados.
-          </p>
+          <p className="text-center text-gray-400">© 2025 Agencia Generativa. Todos os direitos reservados.</p>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Landing;
