@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, UserCheck, UserX, Download, Filter } from 'lucide-react';
+import { Search, UserCheck, UserX, Download, Filter, Crown, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface User {
@@ -16,8 +15,8 @@ interface User {
   email: string;
   created_at: string;
   last_sign_in_at: string;
-  user_metadata: any;
-  role?: string;
+  raw_user_meta_data: any;
+  roles: string[];
 }
 
 const UserManagement = () => {
@@ -29,67 +28,118 @@ const UserManagement = () => {
   const { data: users, isLoading } = useQuery({
     queryKey: ['admin-users', searchTerm, statusFilter],
     queryFn: async () => {
-      // Note: In a real implementation, you'd fetch user data from a custom users table
-      // since auth.users is not directly accessible. For now, we'll simulate the data
-      const mockUsers: User[] = [
-        {
-          id: '1',
-          email: 'user1@example.com',
-          created_at: '2024-01-15T10:00:00Z',
-          last_sign_in_at: '2024-01-20T15:30:00Z',
-          user_metadata: { name: 'João Silva', plan: 'pro' },
-          role: 'user'
-        },
-        {
-          id: '2',
-          email: 'user2@example.com',
-          created_at: '2024-01-10T09:00:00Z',
-          last_sign_in_at: '2024-01-19T14:20:00Z',
-          user_metadata: { name: 'Maria Santos', plan: 'free' },
-          role: 'user'
-        }
-      ];
+      const { data, error } = await supabase
+        .from('users_with_roles')
+        .select('*');
       
-      return mockUsers.filter(user => 
-        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.user_metadata.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      if (error) {
+        console.error('Error fetching users:', error);
+        return [];
+      }
+
+      // Apply search filter
+      const filteredUsers = data.filter(user => {
+        const userData = user.raw_user_meta_data as any;
+        return user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+               (userData?.name && String(userData.name).toLowerCase().includes(searchTerm.toLowerCase()));
+      });
+
+      return filteredUsers;
     },
   });
 
-  const blockUserMutation = useMutation({
-    mutationFn: async (userId: string) => {
-      // In a real implementation, you'd call a function to block/unblock users
-      console.log('Blocking user:', userId);
-      throw new Error('Feature not yet implemented in demo');
+  // Mutation to change user role
+  const changeRoleMutation = useMutation({
+    mutationFn: async ({ userId, newRole }: { userId: string, newRole: 'admin' | 'user' }) => {
+      const { error } = await supabase.rpc('admin_set_user_role', {
+        target_user_id: userId,
+        new_role: newRole
+      });
+
+      if (error) throw error;
+
+      // Log the action
+      await supabase.rpc('log_admin_action', {
+        action_type_param: 'role_change',
+        target_user_id_param: userId,
+        action_details_param: { new_role: newRole }
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       toast({
-        title: 'Usuário bloqueado',
-        description: 'O usuário foi bloqueado com sucesso.',
+        title: "Role alterada",
+        description: "A role do usuário foi alterada com sucesso.",
       });
     },
     onError: (error) => {
       toast({
-        title: 'Erro',
-        description: 'Não foi possível bloquear o usuário.',
-        variant: 'destructive',
+        title: "Erro",
+        description: "Falha ao alterar role do usuário. Tente novamente.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Mutation to update user plan
+  const updatePlanMutation = useMutation({
+    mutationFn: async ({ 
+      userId, 
+      planType, 
+      postsLimit, 
+      aiRequestsLimit, 
+      socialAccountsLimit 
+    }: { 
+      userId: string, 
+      planType: string,
+      postsLimit: number,
+      aiRequestsLimit: number,
+      socialAccountsLimit: number
+    }) => {
+      const { error } = await supabase.rpc('admin_update_user_plan', {
+        target_user_id: userId,
+        new_plan_type: planType,
+        new_posts_limit: postsLimit,
+        new_ai_requests_limit: aiRequestsLimit,
+        new_social_accounts_limit: socialAccountsLimit
+      });
+
+      if (error) throw error;
+
+      // Log the action
+      await supabase.rpc('log_admin_action', {
+        action_type_param: 'plan_update',
+        target_user_id_param: userId,
+        action_details_param: { new_plan: planType }
       });
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      toast({
+        title: "Plano atualizado",
+        description: "O plano do usuário foi atualizado com sucesso.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: "Falha ao atualizar plano do usuário. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   });
 
   const exportUsers = () => {
     if (!users) return;
     
     const csvContent = [
-      ['Email', 'Nome', 'Plano', 'Data de Criação', 'Último Login'].join(','),
+      ['Email', 'Nome', 'Roles', 'Data de Criação', 'Último Login'].join(','),
       ...users.map(user => [
         user.email,
-        user.user_metadata.name,
-        user.user_metadata.plan,
+        (user.raw_user_meta_data as any)?.name || '',
+        user.roles.join(';'),
         new Date(user.created_at).toLocaleDateString('pt-BR'),
-        new Date(user.last_sign_in_at).toLocaleDateString('pt-BR')
+        user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString('pt-BR') : 'Nunca'
       ].join(','))
     ].join('\n');
 
@@ -100,6 +150,29 @@ const UserManagement = () => {
     a.download = 'usuarios.csv';
     a.click();
     window.URL.revokeObjectURL(url);
+  };
+
+  const handleRoleChange = (userId: string, currentRoles: string[]) => {
+    const isCurrentlyAdmin = currentRoles.includes('admin');
+    const newRole = isCurrentlyAdmin ? 'user' : 'admin';
+    changeRoleMutation.mutate({ userId, newRole });
+  };
+
+  const handlePlanUpgrade = (userId: string, planType: 'free' | 'pro' | 'enterprise') => {
+    const planLimits = {
+      free: { posts: 10, aiRequests: 50, socialAccounts: 2 },
+      pro: { posts: 100, aiRequests: 500, socialAccounts: 5 },
+      enterprise: { posts: 999999, aiRequests: 999999, socialAccounts: 999999 }
+    };
+
+    const limits = planLimits[planType];
+    updatePlanMutation.mutate({
+      userId,
+      planType,
+      postsLimit: limits.posts,
+      aiRequestsLimit: limits.aiRequests,
+      socialAccountsLimit: limits.socialAccounts
+    });
   };
 
   if (isLoading) {
@@ -147,8 +220,8 @@ const UserManagement = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="active">Ativos</SelectItem>
-                <SelectItem value="blocked">Bloqueados</SelectItem>
+                <SelectItem value="admin">Admins</SelectItem>
+                <SelectItem value="user">Usuários</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -165,7 +238,7 @@ const UserManagement = () => {
               <TableRow>
                 <TableHead>Email</TableHead>
                 <TableHead>Nome</TableHead>
-                <TableHead>Plano</TableHead>
+                <TableHead>Roles</TableHead>
                 <TableHead>Criado em</TableHead>
                 <TableHead>Último Login</TableHead>
                 <TableHead>Ações</TableHead>
@@ -174,38 +247,62 @@ const UserManagement = () => {
             <TableBody>
               {users?.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.user_metadata.name}</TableCell>
+                  <TableCell className="font-medium">{user.email}</TableCell>
+                  <TableCell>{(user.raw_user_meta_data as any)?.name || 'N/A'}</TableCell>
                   <TableCell>
-                    <Badge variant={
-                      user.user_metadata.plan === 'enterprise' ? 'default' :
-                      user.user_metadata.plan === 'pro' ? 'secondary' : 'outline'
-                    }>
-                      {user.user_metadata.plan}
-                    </Badge>
+                    <div className="flex gap-1">
+                      {user.roles.map((role) => (
+                        <Badge 
+                          key={role}
+                          variant={role === 'admin' ? 'default' : 'secondary'}
+                          className={role === 'admin' ? 'bg-orange-500' : ''}
+                        >
+                          {role === 'admin' && <Crown className="w-3 h-3 mr-1" />}
+                          {role}
+                        </Badge>
+                      ))}
+                    </div>
                   </TableCell>
                   <TableCell>
                     {new Date(user.created_at).toLocaleDateString('pt-BR')}
                   </TableCell>
                   <TableCell>
-                    {new Date(user.last_sign_in_at).toLocaleDateString('pt-BR')}
+                    {user.last_sign_in_at 
+                      ? new Date(user.last_sign_in_at).toLocaleDateString('pt-BR')
+                      : 'Nunca'
+                    }
                   </TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => console.log('Edit user:', user.id)}
+                        onClick={() => handleRoleChange(user.id, user.roles)}
+                        disabled={changeRoleMutation.isPending}
                       >
-                        Editar
+                        {user.roles.includes('admin') ? (
+                          <>
+                            <UserX className="h-4 w-4 mr-1" />
+                            Remover Admin
+                          </>
+                        ) : (
+                          <>
+                            <Crown className="h-4 w-4 mr-1" />
+                            Tornar Admin
+                          </>
+                        )}
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => blockUserMutation.mutate(user.id)}
-                      >
-                        <UserX className="h-4 w-4" />
-                      </Button>
+                      
+                      <Select onValueChange={(value) => handlePlanUpgrade(user.id, value as any)}>
+                        <SelectTrigger className="w-32">
+                          <SelectValue placeholder="Plano" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="free">Free</SelectItem>
+                          <SelectItem value="pro">Pro</SelectItem>
+                          <SelectItem value="enterprise">Enterprise</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </TableCell>
                 </TableRow>

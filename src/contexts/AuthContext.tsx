@@ -7,6 +7,7 @@ interface User {
   email: string;
   plan: 'free' | 'pro' | 'enterprise';
   role: 'user' | 'admin';
+  isAdmin: boolean;
   trialEndsAt?: string;
   profileImage?: string;
   phone?: string;
@@ -82,20 +83,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
+    const isAdminUser = email === 'marcondesjr.ti@gmail.com' || email === 'admin@agenciagen.com';
+    
     // Simular login
     const mockUser: User = {
-      id: '1',
-      name: 'João Silva',
+      id: email === 'marcondesjr.ti@gmail.com' ? 'admin-main' : '1',
+      name: email === 'marcondesjr.ti@gmail.com' ? 'Admin Principal' : 'João Silva',
       email,
-      plan: 'free',
-      role: email === 'admin@agenciagen.com' ? 'admin' : 'user',
+      plan: isAdminUser ? 'enterprise' : 'free',
+      role: isAdminUser ? 'admin' : 'user',
+      isAdmin: isAdminUser,
       trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       usage: {
         postsGenerated: 0,
         postsScheduled: 0,
-        maxPosts: 5,
+        maxPosts: isAdminUser ? Infinity : 5,
         socialAccountsConnected: 0,
-        maxSocialAccounts: 2
+        maxSocialAccounts: isAdminUser ? Infinity : 2
       }
     };
     
@@ -143,6 +147,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       email,
       plan: 'free',
       role: 'user',
+      isAdmin: false,
       trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       phone: additionalData?.phone,
       instagramLink: additionalData?.instagramLink,
