@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users, DollarSign, FileText, TrendingUp, Activity, Target } from 'lucide-react';
+import { HealthCheck } from './HealthCheck';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 
@@ -118,6 +119,7 @@ const AdminDashboard = () => {
           <TabsTrigger value="activity">Atividade Recente</TabsTrigger>
           <TabsTrigger value="insights">Social Insights</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
+          <TabsTrigger value="health-check">Checagem Sistema</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -209,6 +211,10 @@ const AdminDashboard = () => {
               <p className="text-muted-foreground">Dados de performance serão implementados aqui</p>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="health-check" className="space-y-4">
+          <HealthCheck />
         </TabsContent>
       </Tabs>
     </div>
