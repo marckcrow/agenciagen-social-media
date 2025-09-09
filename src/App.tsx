@@ -24,6 +24,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import WhatsAppButton from "./components/WhatsAppButton";
 import NotFound from "./pages/NotFound";
+import QrCodeGenerator from "./pages/QrCodeGenerator";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/register" element={<Register />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/qr-code" element={<QrCodeGenerator />} />
             <Route path="/onboarding" element={
               <ProtectedRoute>
                 <Onboarding />
