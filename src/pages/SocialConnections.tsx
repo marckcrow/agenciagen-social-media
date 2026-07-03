@@ -58,14 +58,12 @@ const SocialConnections = () => {
   };
 
 
-  const handleConnect = (platform: 'instagram' | 'youtube' | 'facebook') => {
-    // Simular processo de OAuth
+  const handleConnect = (platform: Platform) => {
     toast({
       title: "Redirecionando...",
       description: `Conectando com ${platformConfig[platform].name}. Aguarde...`,
     });
 
-    // Simular conexão após 2 segundos
     setTimeout(() => {
       setConnections(prev => prev.map(conn => 
         conn.platform === platform 
@@ -85,7 +83,7 @@ const SocialConnections = () => {
     }, 2000);
   };
 
-  const handleDisconnect = (platform: 'instagram' | 'youtube' | 'facebook') => {
+  const handleDisconnect = (platform: Platform) => {
     setConnections(prev => prev.map(conn => 
       conn.platform === platform 
         ? { ...conn, connected: false, username: undefined, lastSync: undefined }
@@ -97,6 +95,7 @@ const SocialConnections = () => {
       description: `Conta do ${platformConfig[platform].name} foi desconectada.`,
     });
   };
+
 
   const connectedCount = connections.filter(conn => conn.connected).length;
 
