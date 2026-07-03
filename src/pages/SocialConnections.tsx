@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Navbar from "@/components/Navbar";
-import { Instagram, Youtube, Facebook, Link2, CheckCircle, AlertCircle, Unlink, Music2 } from "lucide-react";
+import { Instagram, Youtube, Facebook, Linkedin, Link2, CheckCircle, AlertCircle, Unlink, Music2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 type Platform = 'instagram' | 'youtube' | 'facebook' | 'tiktok';
