@@ -180,11 +180,14 @@ const WebhookLogs = () => {
                 <TableHead>Data/Hora</TableHead>
                 <TableHead>User ID</TableHead>
                 <TableHead>Processado em</TableHead>
+                <TableHead>Tempo</TableHead>
                 <TableHead>Erro</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {webhookEvents?.map((event) => (
+              {webhookEvents?.map((event) => {
+                const ms = getProcessingMs(event);
+                return (
                 <TableRow key={event.id}>
                   <TableCell className="font-medium">{event.event_type}</TableCell>
                   <TableCell>{getStatusBadge(event.status || 'pending')}</TableCell>
@@ -200,11 +203,15 @@ const WebhookLogs = () => {
                       '-'
                     }
                   </TableCell>
+                  <TableCell className={ms !== null && ms > 5000 ? 'text-orange-600 font-medium' : ''}>
+                    {formatDuration(ms)}
+                  </TableCell>
                   <TableCell className="max-w-xs truncate text-red-600">
                     {event.error_message || '-'}
                   </TableCell>
                 </TableRow>
-              ))}
+                );
+              })}
             </TableBody>
           </Table>
         </CardContent>
