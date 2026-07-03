@@ -144,7 +144,15 @@ export type Database = {
           type?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users_with_roles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       posts: {
         Row: {
@@ -234,7 +242,15 @@ export type Database = {
           profile_image?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users_with_roles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       social_accounts: {
         Row: {
@@ -359,7 +375,15 @@ export type Database = {
           social_accounts_connected?: number | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "usage_stats_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users_with_roles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_plans: {
         Row: {
@@ -422,7 +446,15 @@ export type Database = {
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users_with_roles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       webhook_events: {
         Row: {
@@ -455,14 +487,110 @@ export type Database = {
           status?: string | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "webhook_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users_with_roles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
-      [_ in never]: never
+      user_management_view: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string | null
+          plan_active: boolean | null
+          plan_type: string | null
+          roles: Database["public"]["Enums"]["app_role"][] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users_with_roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users_with_roles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string | null
+          last_sign_in_at: string | null
+          raw_user_meta_data: Json | null
+          roles: string[] | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id?: string | null
+          last_sign_in_at?: string | null
+          raw_user_meta_data?: Json | null
+          roles?: never
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string | null
+          last_sign_in_at?: string | null
+          raw_user_meta_data?: Json | null
+          roles?: never
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      admin_set_user_role: {
+        Args: {
+          new_role: Database["public"]["Enums"]["app_role"]
+          target_user_id: string
+        }
+        Returns: undefined
+      }
+      admin_update_user_plan: {
+        Args: {
+          expires_at_param?: string
+          new_ai_requests_limit?: number
+          new_plan_type: string
+          new_posts_limit?: number
+          new_social_accounts_limit?: number
+          target_user_id: string
+        }
+        Returns: undefined
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      increment_usage_stat: {
+        Args: {
+          p_date: string
+          p_increment?: number
+          p_stat: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
+      is_current_user_admin: { Args: never; Returns: boolean }
+      log_admin_action: {
+        Args: {
+          action_details_param?: Json
+          action_type_param: string
+          target_user_id_param?: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user" | "service"
