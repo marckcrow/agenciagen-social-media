@@ -55,6 +55,13 @@ const SocialConnections = () => {
       color: 'text-gray-900',
       bgColor: 'bg-gray-100',
       description: 'Publique vídeos curtos e alcance a geração Z'
+    },
+    linkedin: {
+      name: 'LinkedIn',
+      icon: Linkedin,
+      color: 'text-blue-700',
+      bgColor: 'bg-blue-50',
+      description: 'Compartilhe posts e artigos profissionais'
     }
   };
 
