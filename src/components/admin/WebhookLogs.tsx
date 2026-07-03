@@ -40,17 +40,30 @@ const WebhookLogs = () => {
     },
   });
 
+  const getProcessingMs = (event: any): number | null => {
+    if (!event.processed_at || !event.created_at) return null;
+    return new Date(event.processed_at).getTime() - new Date(event.created_at).getTime();
+  };
+
+  const formatDuration = (ms: number | null) => {
+    if (ms === null) return '-';
+    if (ms < 1000) return `${ms} ms`;
+    if (ms < 60000) return `${(ms / 1000).toFixed(2)} s`;
+    return `${(ms / 60000).toFixed(2)} min`;
+  };
+
   const exportLogs = () => {
     if (!webhookEvents) return;
     
     const csvContent = [
-      ['Tipo de Evento', 'Status', 'Data', 'User ID', 'Erro'].join(','),
+      ['Tipo de Evento', 'Status', 'Data', 'User ID', 'Tempo (ms)', 'Erro'].join(','),
       ...webhookEvents.map(event => [
         event.event_type,
         event.status,
         new Date(event.created_at).toLocaleString('pt-BR'),
         event.user_id || '',
-        event.error_message || ''
+        getProcessingMs(event) ?? '',
+        (event.error_message || '').replace(/,/g, ';')
       ].join(','))
     ].join('\n');
 
