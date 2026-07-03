@@ -40,17 +40,30 @@ const WebhookLogs = () => {
     },
   });
 
+  const getProcessingMs = (event: any): number | null => {
+    if (!event.processed_at || !event.created_at) return null;
+    return new Date(event.processed_at).getTime() - new Date(event.created_at).getTime();
+  };
+
+  const formatDuration = (ms: number | null) => {
+    if (ms === null) return '-';
+    if (ms < 1000) return `${ms} ms`;
+    if (ms < 60000) return `${(ms / 1000).toFixed(2)} s`;
+    return `${(ms / 60000).toFixed(2)} min`;
+  };
+
   const exportLogs = () => {
     if (!webhookEvents) return;
     
     const csvContent = [
-      ['Tipo de Evento', 'Status', 'Data', 'User ID', 'Erro'].join(','),
+      ['Tipo de Evento', 'Status', 'Data', 'User ID', 'Tempo (ms)', 'Erro'].join(','),
       ...webhookEvents.map(event => [
         event.event_type,
         event.status,
         new Date(event.created_at).toLocaleString('pt-BR'),
         event.user_id || '',
-        event.error_message || ''
+        getProcessingMs(event) ?? '',
+        (event.error_message || '').replace(/,/g, ';')
       ].join(','))
     ].join('\n');
 
@@ -167,11 +180,14 @@ const WebhookLogs = () => {
                 <TableHead>Data/Hora</TableHead>
                 <TableHead>User ID</TableHead>
                 <TableHead>Processado em</TableHead>
+                <TableHead>Tempo</TableHead>
                 <TableHead>Erro</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {webhookEvents?.map((event) => (
+              {webhookEvents?.map((event) => {
+                const ms = getProcessingMs(event);
+                return (
                 <TableRow key={event.id}>
                   <TableCell className="font-medium">{event.event_type}</TableCell>
                   <TableCell>{getStatusBadge(event.status || 'pending')}</TableCell>
@@ -187,11 +203,15 @@ const WebhookLogs = () => {
                       '-'
                     }
                   </TableCell>
+                  <TableCell className={ms !== null && ms > 5000 ? 'text-orange-600 font-medium' : ''}>
+                    {formatDuration(ms)}
+                  </TableCell>
                   <TableCell className="max-w-xs truncate text-red-600">
                     {event.error_message || '-'}
                   </TableCell>
                 </TableRow>
-              ))}
+                );
+              })}
             </TableBody>
           </Table>
         </CardContent>
