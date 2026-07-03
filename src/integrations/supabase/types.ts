@@ -144,15 +144,7 @@ export type Database = {
           type?: string
           user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "notifications_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users_with_roles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       posts: {
         Row: {
@@ -214,8 +206,10 @@ export type Database = {
           full_name: string | null
           id: string
           instagram_link: string | null
+          last_sign_in_at: string | null
           phone: string | null
           profile_image: string | null
+          raw_user_meta_data: Json | null
           updated_at: string
         }
         Insert: {
@@ -226,8 +220,10 @@ export type Database = {
           full_name?: string | null
           id: string
           instagram_link?: string | null
+          last_sign_in_at?: string | null
           phone?: string | null
           profile_image?: string | null
+          raw_user_meta_data?: Json | null
           updated_at?: string
         }
         Update: {
@@ -238,19 +234,13 @@ export type Database = {
           full_name?: string | null
           id?: string
           instagram_link?: string | null
+          last_sign_in_at?: string | null
           phone?: string | null
           profile_image?: string | null
+          raw_user_meta_data?: Json | null
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "users_with_roles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       social_accounts: {
         Row: {
@@ -375,15 +365,7 @@ export type Database = {
           social_accounts_connected?: number | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "usage_stats_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users_with_roles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       user_plans: {
         Row: {
@@ -446,15 +428,7 @@ export type Database = {
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_roles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users_with_roles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       webhook_events: {
         Row: {
@@ -487,15 +461,7 @@ export type Database = {
           status?: string | null
           user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "webhook_events_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users_with_roles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
@@ -509,15 +475,7 @@ export type Database = {
           plan_type: string | null
           roles: Database["public"]["Enums"]["app_role"][] | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "users_with_roles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       users_with_roles: {
         Row: {
