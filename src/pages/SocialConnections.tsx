@@ -8,7 +8,7 @@ import Navbar from "@/components/Navbar";
 import { Instagram, Youtube, Facebook, Linkedin, Link2, CheckCircle, AlertCircle, Unlink, Music2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-type Platform = 'instagram' | 'youtube' | 'facebook' | 'tiktok';
+type Platform = 'instagram' | 'youtube' | 'facebook' | 'tiktok' | 'linkedin';
 
 interface SocialConnection {
   platform: Platform;
