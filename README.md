@@ -1,188 +1,100 @@
-# 🚀 Agência Generativa
+# AdGen AI — Agência Generativa
 
-Uma plataforma completa de geração e gerenciamento de conteúdo digital com IA, desenvolvida para agências e profissionais de marketing digital.
+Plataforma SaaS de geração e gestão de conteúdo com IA para redes sociais, construída em React + Vite + Tailwind e backend Lovable Cloud (Supabase).
 
-## 📋 Sobre o Projeto
+## Stack
 
-A Agência Generativa é uma aplicação web moderna que combina inteligência artificial com ferramentas de gestão para automatizar e otimizar a criação de conteúdo digital. A plataforma oferece desde geração automática de posts até análises detalhadas de performance.
+- **Frontend:** React 18, Vite 5, TypeScript, Tailwind CSS, shadcn/ui, React Router, TanStack Query
+- **Backend:** Lovable Cloud (PostgreSQL, Auth, Storage, Edge Functions) via `@supabase/supabase-js`
+- **Integrações:** Webhook n8n para publicação em redes sociais
 
-### ✨ Principais Funcionalidades
+## Pré-requisitos
 
-- **🤖 Geração de Conteúdo com IA**: Criação automática de posts, legendas e conteúdo visual
-- **📅 Agendamento Inteligente**: Sistema completo de agendamento de posts para múltiplas redes sociais
-- **🔗 Conexões Sociais**: Integração com principais plataformas de mídia social
-- **📊 Analytics Avançado**: Métricas detalhadas de performance e engajamento
-- **👥 Gestão de Usuários**: Sistema completo de usuários com diferentes níveis de acesso
-- **⚡ Webhook System**: Sistema robusto de webhooks para integrações
-- **🛡️ Sistema de Roles**: Controle granular de permissões (Admin, Moderador, Usuário)
-- **📈 Dashboard Administrativo**: Painel completo para administradores
+- **Node.js 20+** e **npm** (ou Bun)
+- **Git**
+- Opcional: **Docker 24+** e **Docker Compose**
 
-## 🛠️ Tecnologias Utilizadas
+## Instalação local (Node)
 
-### Frontend
-- **React 18** - Biblioteca principal para interface
-- **TypeScript** - Tipagem estática
-- **Vite** - Build tool e dev server
-- **Tailwind CSS** - Framework CSS utilitário
-- **shadcn/ui** - Componentes de interface
-- **React Router** - Roteamento
-- **React Query** - Gerenciamento de estado servidor
-- **React Hook Form** - Gerenciamento de formulários
-
-### Backend & Database
-- **Supabase** - Backend as a Service
-  - PostgreSQL Database
-  - Row Level Security (RLS)
-  - Edge Functions
-  - Real-time subscriptions
-  - Authentication
-
-### Funcionalidades de Backend
-- **Edge Functions**: Processamento de webhooks e métricas
-- **Cron Jobs**: Agregação automática de métricas diárias
-- **Sistema de Notificações**: Notificações em tempo real
-- **Upload de Arquivos**: Gerenciamento de imagens de perfil
-
-## 🏗️ Arquitetura do Projeto
-
-```
-src/
-├── components/           # Componentes React reutilizáveis
-│   ├── admin/           # Componentes administrativos
-│   ├── register/        # Componentes de registro
-│   └── ui/              # Componentes base (shadcn/ui)
-├── contexts/            # Contextos React
-├── hooks/               # Custom hooks
-├── integrations/        # Integrações externas
-│   └── supabase/        # Cliente e tipos Supabase
-├── lib/                 # Utilitários e helpers
-└── pages/               # Páginas da aplicação
-
-supabase/
-├── functions/           # Edge Functions
-├── migrations/          # Migrações do banco de dados
-└── config.toml          # Configuração do Supabase
-```
-
-## 🗄️ Estrutura do Banco de Dados
-
-### Tabelas Principais
-
-- **`user_roles`** - Gerenciamento de roles dos usuários
-- **`admin_metrics`** - Métricas administrativas agregadas
-- **`usage_stats`** - Estatísticas de uso por usuário
-- **`notifications`** - Sistema de notificações
-- **`webhook_events`** - Log de eventos de webhook
-
-### Segurança
-- **Row Level Security (RLS)** ativado em todas as tabelas
-- **Políticas granulares** baseadas em roles de usuário
-- **Função `has_role()`** para verificação de permissões
-
-## 🚀 Como Executar o Projeto
-
-### Pré-requisitos
-- Node.js (versão 18 ou superior)
-- npm ou yarn
-- Conta no Supabase
-
-### Configuração
-
-1. **Clone o repositório**
 ```bash
-git clone [URL_DO_SEU_REPOSITORIO]
-cd agencia-generativa
-```
+# 1. Clone o repositório
+git clone https://github.com/marckcrow/agenciagen-social-media.git
+cd agenciagen-social-media
 
-2. **Instale as dependências**
-```bash
+# 2. Instale as dependências
 npm install
-```
 
-3. **Configure o Supabase**
-   - Crie um projeto no [Supabase](https://supabase.com)
-   - Execute as migrações do banco de dados
-   - Configure as variáveis de ambiente no `src/integrations/supabase/client.ts`
+# 3. Configure variáveis de ambiente
+cp .env.example .env    # se existir; caso contrário veja a seção abaixo
 
-4. **Execute o projeto**
-```bash
+# 4. Rode o servidor de desenvolvimento
 npm run dev
 ```
 
-## 🔐 Sistema de Autenticação e Permissões
+O app fica disponível em **http://localhost:8080**.
 
-### Roles Disponíveis
-- **Admin**: Acesso completo ao sistema
-- **Moderador**: Acesso limitado às funcionalidades de moderação
-- **Usuário**: Acesso às funcionalidades básicas
+### Variáveis de ambiente
 
-### Funcionalidades por Role
+Crie um arquivo `.env` na raiz com:
 
-| Funcionalidade | Admin | Moderador | Usuário |
-|---------------|-------|-----------|---------|
-| Dashboard Administrativo | ✅ | ❌ | ❌ |
-| Gerenciamento de Usuários | ✅ | ✅ | ❌ |
-| Visualizar Webhooks | ✅ | ❌ | ❌ |
-| Geração de Conteúdo | ✅ | ✅ | ✅ |
-| Analytics Próprio | ✅ | ✅ | ✅ |
+```env
+VITE_SUPABASE_URL="https://<seu-projeto>.supabase.co"
+VITE_SUPABASE_PUBLISHABLE_KEY="<sua-anon-key>"
+VITE_SUPABASE_PROJECT_ID="<seu-project-id>"
+```
 
-## 📊 Edge Functions
+Em projetos Lovable Cloud esses valores já são preenchidos automaticamente.
 
-### Webhooks (`webhook-event`)
-Processa eventos externos e atualiza métricas:
-- Signup de usuários
-- Upgrades de plano
-- Geração de conteúdo
-- Expiração de trial
+### Scripts disponíveis
 
-### Agregador de Métricas (`daily-metrics-aggregator`)
-Execução diária para agregação de:
-- Contagem de usuários por plano
-- Cálculo de MRR (Monthly Recurring Revenue)
-- Métricas de conteúdo gerado
-- Taxa de conversão e churn
+| Comando            | Descrição                              |
+| ------------------ | -------------------------------------- |
+| `npm run dev`      | Servidor de desenvolvimento (porta 8080) |
+| `npm run build`    | Build de produção em `dist/`           |
+| `npm run preview`  | Preview local do build de produção     |
+| `npm run lint`     | Lint com ESLint                        |
 
-## 🔧 Configurações e Customização
+## Rodando com Docker
 
-### Design System
-- Todos os estilos seguem um design system centralizado
-- Tokens semânticos definidos em `index.css`
-- Componentes customizáveis via `tailwind.config.ts`
+### Desenvolvimento (hot reload)
 
-### Webhooks
-Configure webhooks externos para integração com:
-- Sistemas de pagamento
-- Plataformas de IA
-- Redes sociais
-- Analytics externos
+```bash
+docker compose up --build
+```
 
-## 📱 Funcionalidades Futuras
+Acesse **http://localhost:8080**. Alterações em `src/` recarregam automaticamente.
 
-- [ ] Integração com ChatGPT/Claude para geração de conteúdo
-- [ ] Agendamento automático baseado em IA
-- [ ] Analytics preditivo
-- [ ] App móvel React Native
-- [ ] Integração com mais redes sociais
-- [ ] Sistema de templates personalizáveis
+### Build de produção (imagem estática com Nginx)
 
-## 🤝 Contribuição
+```bash
+# Build da imagem
+docker build --target prod -t agenciagen:latest .
 
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/MinhaFeature`)
-3. Commit suas mudanças (`git commit -m 'Adiciona MinhaFeature'`)
-4. Push para a branch (`git push origin feature/MinhaFeature`)
-5. Abra um Pull Request
+# Rode
+docker run --rm -p 8080:80 agenciagen:latest
+```
 
-## 📄 Licença
+Acesse **http://localhost:8080**.
 
-Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+## Estrutura do projeto
 
-## 🆘 Suporte
+```
+src/
+├── components/       # Componentes React (admin/, register/, ui/)
+├── contexts/         # Contextos (AuthContext)
+├── hooks/            # Custom hooks
+├── integrations/     # Cliente Supabase (auto-gerado)
+├── lib/              # Utilitários
+└── pages/            # Rotas da aplicação
+supabase/
+├── functions/        # Edge Functions
+└── migrations/       # Migrações SQL
+```
 
-Para suporte ou dúvidas sobre o projeto:
-- Abra uma issue no GitHub
-- Entre em contato através do e-mail: [seu-email@exemplo.com]
+## Deploy
 
----
+O deploy oficial é feito pelo Lovable via botão **Publish** no editor. Para hospedagem própria, use o estágio `prod` do Dockerfile em qualquer provedor que rode contêineres (Fly.io, Render, Railway, etc.).
 
-**Desenvolvido com ❤️ para revolucionar a gestão de conteúdo digital**
+## Licença
+
+MIT
