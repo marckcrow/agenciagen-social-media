@@ -7,10 +7,10 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.4"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -204,6 +204,53 @@ export type Database = {
           webhook_sent_at?: string | null
         }
         Relationships: []
+      }
+      profiles: {
+        Row: {
+          business_segment: string | null
+          cpf_cnpj: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          instagram_link: string | null
+          phone: string | null
+          profile_image: string | null
+          updated_at: string
+        }
+        Insert: {
+          business_segment?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          instagram_link?: string | null
+          phone?: string | null
+          profile_image?: string | null
+          updated_at?: string
+        }
+        Update: {
+          business_segment?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          instagram_link?: string | null
+          phone?: string | null
+          profile_image?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users_with_roles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       social_accounts: {
         Row: {
@@ -452,6 +499,26 @@ export type Database = {
       }
     }
     Views: {
+      user_management_view: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string | null
+          plan_active: boolean | null
+          plan_type: string | null
+          roles: Database["public"]["Enums"]["app_role"][] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users_with_roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users_with_roles: {
         Row: {
           created_at: string | null
@@ -483,53 +550,50 @@ export type Database = {
     Functions: {
       admin_set_user_role: {
         Args: {
-          target_user_id: string
           new_role: Database["public"]["Enums"]["app_role"]
+          target_user_id: string
         }
         Returns: undefined
       }
       admin_update_user_plan: {
         Args: {
-          target_user_id: string
+          expires_at_param?: string
+          new_ai_requests_limit?: number
           new_plan_type: string
           new_posts_limit?: number
-          new_ai_requests_limit?: number
           new_social_accounts_limit?: number
-          expires_at_param?: string
+          target_user_id: string
         }
         Returns: undefined
       }
       has_role: {
         Args: {
-          _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
         Returns: boolean
       }
       increment_usage_stat: {
         Args: {
-          p_user_id: string
           p_date: string
-          p_stat: string
           p_increment?: number
+          p_stat: string
+          p_user_id: string
         }
         Returns: undefined
       }
-      is_current_user_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      is_current_user_admin: { Args: never; Returns: boolean }
       log_admin_action: {
         Args: {
+          action_details_param?: Json
           action_type_param: string
           target_user_id_param?: string
-          action_details_param?: Json
         }
         Returns: undefined
       }
     }
     Enums: {
-      app_role: "user" | "admin" | "service"
+      app_role: "admin" | "user" | "service"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -657,7 +721,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["user", "admin", "service"],
+      app_role: ["admin", "user", "service"],
     },
   },
 } as const
