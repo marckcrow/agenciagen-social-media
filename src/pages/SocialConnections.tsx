@@ -23,7 +23,8 @@ const SocialConnections = () => {
     { platform: 'instagram', connected: false },
     { platform: 'youtube', connected: false },
     { platform: 'facebook', connected: false },
-    { platform: 'tiktok', connected: false }
+    { platform: 'tiktok', connected: false },
+    { platform: 'linkedin', connected: false }
   ]);
 
   const platformConfig: Record<Platform, { name: string; icon: typeof Instagram; color: string; bgColor: string; description: string }> = {
