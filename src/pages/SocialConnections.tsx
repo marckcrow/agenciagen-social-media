@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Navbar from "@/components/Navbar";
-import { Instagram, Youtube, Facebook, Link2, CheckCircle, AlertCircle, Unlink } from "lucide-react";
+import { Instagram, Youtube, Facebook, Link2, CheckCircle, AlertCircle, Unlink, Music2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+type Platform = 'instagram' | 'youtube' | 'facebook' | 'tiktok';
+
 interface SocialConnection {
-  platform: 'instagram' | 'youtube' | 'facebook';
+  platform: Platform;
   connected: boolean;
   username?: string;
   lastSync?: string;
@@ -20,10 +22,11 @@ const SocialConnections = () => {
   const [connections, setConnections] = useState<SocialConnection[]>([
     { platform: 'instagram', connected: false },
     { platform: 'youtube', connected: false },
-    { platform: 'facebook', connected: false }
+    { platform: 'facebook', connected: false },
+    { platform: 'tiktok', connected: false }
   ]);
 
-  const platformConfig = {
+  const platformConfig: Record<Platform, { name: string; icon: typeof Instagram; color: string; bgColor: string; description: string }> = {
     instagram: {
       name: 'Instagram',
       icon: Instagram,
@@ -44,17 +47,23 @@ const SocialConnections = () => {
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
       description: 'Publique posts e atualize sua página'
+    },
+    tiktok: {
+      name: 'TikTok',
+      icon: Music2,
+      color: 'text-gray-900',
+      bgColor: 'bg-gray-100',
+      description: 'Publique vídeos curtos e alcance a geração Z'
     }
   };
 
-  const handleConnect = (platform: 'instagram' | 'youtube' | 'facebook') => {
-    // Simular processo de OAuth
+
+  const handleConnect = (platform: Platform) => {
     toast({
       title: "Redirecionando...",
       description: `Conectando com ${platformConfig[platform].name}. Aguarde...`,
     });
 
-    // Simular conexão após 2 segundos
     setTimeout(() => {
       setConnections(prev => prev.map(conn => 
         conn.platform === platform 
@@ -74,7 +83,7 @@ const SocialConnections = () => {
     }, 2000);
   };
 
-  const handleDisconnect = (platform: 'instagram' | 'youtube' | 'facebook') => {
+  const handleDisconnect = (platform: Platform) => {
     setConnections(prev => prev.map(conn => 
       conn.platform === platform 
         ? { ...conn, connected: false, username: undefined, lastSync: undefined }
@@ -86,6 +95,7 @@ const SocialConnections = () => {
       description: `Conta do ${platformConfig[platform].name} foi desconectada.`,
     });
   };
+
 
   const connectedCount = connections.filter(conn => conn.connected).length;
 
