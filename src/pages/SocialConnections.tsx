@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Navbar from "@/components/Navbar";
-import { Instagram, Youtube, Facebook, Link2, CheckCircle, AlertCircle, Unlink, Music2 } from "lucide-react";
+import { Instagram, Youtube, Facebook, Linkedin, Link2, CheckCircle, AlertCircle, Unlink, Music2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-type Platform = 'instagram' | 'youtube' | 'facebook' | 'tiktok';
+type Platform = 'instagram' | 'youtube' | 'facebook' | 'tiktok' | 'linkedin';
 
 interface SocialConnection {
   platform: Platform;
@@ -23,7 +23,8 @@ const SocialConnections = () => {
     { platform: 'instagram', connected: false },
     { platform: 'youtube', connected: false },
     { platform: 'facebook', connected: false },
-    { platform: 'tiktok', connected: false }
+    { platform: 'tiktok', connected: false },
+    { platform: 'linkedin', connected: false }
   ]);
 
   const platformConfig: Record<Platform, { name: string; icon: typeof Instagram; color: string; bgColor: string; description: string }> = {
@@ -54,6 +55,13 @@ const SocialConnections = () => {
       color: 'text-gray-900',
       bgColor: 'bg-gray-100',
       description: 'Publique vídeos curtos e alcance a geração Z'
+    },
+    linkedin: {
+      name: 'LinkedIn',
+      icon: Linkedin,
+      color: 'text-blue-700',
+      bgColor: 'bg-blue-50',
+      description: 'Compartilhe posts e artigos profissionais'
     }
   };
 
